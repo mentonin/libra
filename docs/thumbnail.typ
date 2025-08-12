@@ -7,15 +7,29 @@
 #let fg-color = if theme == "dark" { white } else { black }
 #set text(fg-color)
 #set table(stroke: fg-color)
-#set text(22pt)
-#set align(center + horizon)
 
-#let row(t) = (t, balance(t))
+#set text(22pt)
+#set par(justify: true)
+
+#show table.cell: it => {
+  if it.y == 1 {
+    it = {
+      set text(size: 16pt)
+      it
+    }
+  } else if it.y == 2 {
+    it = {
+      set text(size: 14pt)
+      it
+    }
+  }
+  it
+}
 #table(
   columns: 2,
   align: center + horizon,
   inset: 0.5em,
-  [*unbalanced*], [*balanced*],
-  ..row(text(size: 12pt, lorem(8))),
-  ..row(align(left, text(size: 14pt, par(justify: true, lorem(27))))),
+  table.header([*unbalanced*], [*balanced*]),
+  lorem(8), balance(lorem(8)),
+  lorem(27), balance(lorem(27)),
 )
