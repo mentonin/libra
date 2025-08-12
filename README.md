@@ -12,6 +12,7 @@ It is most useful for balancing especially laid-out text such as headings or cap
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on the typst web app.
+For more details, check out the [manual](docs/manual.pdf).
 
 ```typst
 #import "@preview/libra:0.1.0": balance
