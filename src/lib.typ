@@ -22,6 +22,7 @@
   /// The precision to which to balance. -> length
   precision: 0.1em,
 ) = context layout(size => {
+  set text(hyphenate: par.justify) if text.hyphenate == auto
   let lead = par.leading.to-absolute()
   let line-height = measure(body).height + lead
   let initial-size = measure(width: size.width, body)
@@ -33,6 +34,7 @@
   let extra-lines = initial-lines
   for i in range(0, max-iterations) {
     let candidate = high - (high - low) / (extra-lines + 1)
+    set par(justify: false)
     let (height, width) = measure(width: candidate, body)
     if height > initial-size.height {
       low = candidate
@@ -49,5 +51,5 @@
     }
   }
 
-  box(width: high, body)
+  box(width: high, body + if par.justify { linebreak(justify: true) })
 })
