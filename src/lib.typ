@@ -1,5 +1,20 @@
 /// Balances text, useful for headings, captions, centered text, or others.
 
+#let _normalized-size(body, width: auto) = {
+  let (height, width) = measure(
+    {
+      set text(top-edge: 1000pt, bottom-edge: 0pt, baseline: 0pt)
+      body
+    },
+    width: width,
+  )
+  let lead = par.leading.to-absolute()
+  return (
+    lines: (height + lead) / (1000pt + lead),
+    width: width,
+  )
+}
+
 /// Balances lines of text while keeping the minimum amount of lines possible.
 /// Works by shrinking the width of the text until it can't be shrunk anymore.
 ///
@@ -22,10 +37,10 @@
   /// The precision to which to balance. -> length
   precision: 0.1em,
 ) = context layout(size => {
-  let lead = par.leading.to-absolute()
-  let line-height = measure(body).height + lead
-  let initial-size = measure(width: size.width, body)
-  let initial-lines = (initial-size.height + lead) / line-height
+  let precision = precision.to-absolute()
+
+  let initial-size = _normalized-size(body, width: size.width)
+  let initial-lines = initial-size.lines
 
   let high = initial-size.width
   let low = high * (1 - (1 / initial-lines)) / 2
@@ -33,21 +48,21 @@
   let extra-lines = initial-lines
   for i in range(0, max-iterations) {
     let candidate = high - (high - low) / (extra-lines + 1)
-    let (height, width) = measure(width: candidate, body)
-    if height > initial-size.height {
+    let (lines, width) = _normalized-size(width: candidate, body)
+    if lines > initial-lines {
       low = candidate
-      extra-lines = (height - initial-size.height) / line-height
+      extra-lines = lines - initial-lines
     } else {
       high = width
-      if measure(width: width - precision, body).height > initial-size.height {
+      if _normalized-size(width: high - precision, body).lines > initial-lines {
         break
       }
-      high -= precision.to-absolute()
+      high -= precision
     }
-    if high - low < precision.to-absolute() {
+    if high - low < precision {
       break
     }
   }
 
-  box(width: high, body)
+  block(width: high, body)
 })
